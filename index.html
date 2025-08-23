@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Redirecting…</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    h1 { color: #333; }
+    p { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Loading…</h1>
+  <p>Please wait while your app starts.</p>
+
+  <script>
+    const routes = {
+      "/lifo-api": "https://lifo-api-fd466ebf5a8b.herokuapp.com/"
+    };
+
+    const path = window.location.pathname;
+    const targetUrl = routes[path];
+
+    // Function to show custom Not Found page
+    function showNotFound() {
+      document.body.innerHTML = `
+        <h1>404 - App Not Found</h1>
+        <p>The requested app <strong>${path}</strong> does not exist.</p>
+      `;
+    }
+
+    if (!targetUrl) {
+      showNotFound();
+    } else {
+      const interval = 2000; // 2 seconds
+      function checkApp() {
+        fetch(targetUrl, { method: 'HEAD', mode: 'no-cors' })
+          .then(() => window.location.href = targetUrl)
+          .catch(() => setTimeout(checkApp, interval));
+      }
+      checkApp();
+    }
+  </script>
+</body>
+</html>
