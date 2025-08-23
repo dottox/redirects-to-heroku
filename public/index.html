@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>App Launcher</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    h1 { color: #333; }
+    p { color: #666; }
+    button { margin: 10px; padding: 10px 20px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="content">
+    <h1>Loading…</h1>
+    <p>Please wait while your app starts.</p>
+  </div>
+
+  <script>
+    // Map Vercel paths to Heroku apps
+    const routes = {
+      "/lifo-api": "https://lifo-api-fd466ebf5a8b.herokuapp.com/"
+    };
+
+    const path = window.location.pathname;
+    const content = document.getElementById("content");
+
+    function showNotFound() {
+      content.innerHTML = `
+        <h1>404 - App Not Found</h1>
+        <p>The requested app <strong>${path}</strong> does not exist.</p>
+        <button onclick="window.location.href='/'">Go to Home</button>
+      `;
+    }
+
+    function showAppList() {
+      content.innerHTML = "<h1>Available Apps</h1>";
+      const list = document.createElement("div");
+      Object.keys(routes).forEach(p => {
+        const btn = document.createElement("button");
+        btn.textContent = p.replace("/", "").toUpperCase();
+        btn.onclick = () => window.location.href = p;
+        list.appendChild(btn);
+      });
+      content.appendChild(list);
+    }
+
+    function redirectToApp(url) {
+      const interval = 2000; // poll every 2 seconds
+      function checkApp() {
+        fetch(url, { method: 'HEAD', mode: 'no-cors' })
+          .then(() => window.location.href = url)
+          .catch(() => setTimeout(checkApp, interval));
+      }
+      checkApp();
+    }
+
+    // Routing logic
+    if (path === "/") {
+      showAppList();          // Root path shows app list
+    } else if (routes[path]) {
+      redirectToApp(routes[path]); // Known app paths redirect/poll
+    } else {
+      showNotFound();         // Unknown paths show 404
+    }
+  </script>
+</body>
+</html>
